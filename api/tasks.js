@@ -31,6 +31,8 @@ function clean(t) {
     stars: Math.max(0, Math.min(5, t.stars | 0)), owner: t.owner ? str(t.owner, 40) : null,
     flag: str(t.flag, 60), info: str(t.info, 300), order: Number(t.order) || 0,
     st, dod: (Array.isArray(t.dod) ? t.dod : []).slice(0, 30).map(x => str(x, 300)),
+    qs: (Array.isArray(t.qs) ? t.qs : []).slice(0, 30).filter(q => q && typeof q === 'object' && q.q)
+      .map(q => ({ id: str(q.id, 16), q: str(q.q, 300), a: str(q.a, 1000) })),
   };
 }
 

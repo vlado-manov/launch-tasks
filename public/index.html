@@ -171,6 +171,20 @@ button.chip:hover,button.chip.pin{box-shadow:inset 0 0 0 1.5px currentColor}
 .actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .actions .sp{flex:1}
 
+/* block reasons: question + answer */
+.q{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:12px;background:var(--bg)}
+.q-h{display:flex;gap:8px;align-items:flex-start}
+.q-h b{flex:1;min-width:0;overflow-wrap:anywhere}
+.q-a{padding-left:30px;white-space:pre-wrap;overflow-wrap:anywhere}
+.q .muted,.q .lnk.ch{margin-left:30px}
+.lnk{border:0;background:none;color:var(--muted);cursor:pointer;font-weight:600;padding:2px 4px;font-size:13px;align-self:flex-start;border-radius:6px}
+.lnk:hover{color:var(--ink)}
+.lnk.danger{color:var(--lock)}
+.lnk:focus-visible,.q-new input:focus-visible,.q-in:focus-visible,#q-pw:focus-visible{outline:2px solid var(--prog);outline-offset:2px}
+.q-new{display:flex;gap:8px}
+.q-new input,.q-in,#q-pw{font:inherit;color:var(--ink);background:var(--surface);border:1px solid #CBD7D1;border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+.q-in{min-height:64px;resize:vertical}
+
 @media (max-width:520px){.sot h3{font-size:21px}.grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}.card{padding:12px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.w-base{stroke-dashoffset:0}.w-flow,.w-end{opacity:1}.w-dot{display:none}}
 </style>
@@ -207,6 +221,7 @@ button.chip:hover,button.chip.pin{box-shadow:inset 0 0 0 1.5px currentColor}
   <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M16 7l3 3M13.5 9.5l2 2"/></symbol>
   <symbol id="i-wait" viewBox="0 0 24 24"><path d="M6 3h12M6 21h12M7 3c0 5 5 5 5 9s-5 4-5 9M17 3c0 5-5 5-5 9s5 4 5 9"/></symbol>
   <symbol id="i-open" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" stroke-dasharray="3 3.3"/></symbol>
+  <symbol id="i-q" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.6 2.2c-.7.4-1.1 1-1.1 1.8"/><path d="M12 17h.01"/></symbol>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z"/></symbol>
   <symbol id="t-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/></symbol>
   <symbol id="t-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
@@ -246,7 +261,7 @@ const NAMES={done:'Done',prog:'In progress',lock:'Locked',key:'Unlocks others',w
 const ORDER=['lock','prog','wait','open','done'];
 const LAUNCH=new Date(2026,9,15);
 
-let TASKS=[], byId={}, online=false, needPw=false, pw='', lastRaw='', state='loading', view='pre', pinned=null, cur=null, openId=null, editing=null;
+let TASKS=[], byId={}, online=false, needPw=false, pw='', lastRaw='', qEdit=null, qDel=null, fresh=false, state='loading', view='pre', pinned=null, cur=null, openId=null, editing=null;
 
 const $=s=>document.querySelector(s);
 const esc=v=>String(v==null?'':v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -264,19 +279,25 @@ function norm(id,d){
   const st=(Array.isArray(d.st)?d.st:[]).filter(s=>s&&typeof s==='object').map(s=>({t:TYPES.includes(s.t)?s.t:'open',label:String(s.label||''),time:String(s.time||''),by:String(s.by||'')}));
   return {id,title:String(d.title||'Untitled'),sub:String(d.sub||''),cat:Object.hasOwn(CATS,d.cat)?d.cat:'pages',icon:ICONS.includes(d.icon)?d.icon:'file',
     stars:Math.max(0,Math.min(5,d.stars|0)),owner:TEAM.includes(d.owner)?d.owner:null,flag:String(d.flag||''),info:String(d.info||''),
-    st:st.length?st:[{t:'open',label:'To do',time:'',by:''}],dod:(Array.isArray(d.dod)?d.dod:[]).map(String),order:+d.order||0};
+    st:st.length?st:[{t:'open',label:'To do',time:'',by:''}],dod:(Array.isArray(d.dod)?d.dod:[]).map(String),order:+d.order||0,
+    qs:(Array.isArray(d.qs)?d.qs:[]).filter(q=>q&&typeof q==='object'&&q.q).map((q,i)=>({id:String(q.id||'').replace(/[^A-Za-z0-9]/g,'')||'q'+i,q:String(q.q),a:String(q.a||'')}))};
 }
 
 function chip(t,s){
   const bt=s.t==='lock'?byId[s.by]:null;
   const tm=s.time?`<span class="tm">${esc(s.t==='lock'?'then '+s.time:s.time)}</span>`:'';
   const lb=esc(s.label||NAMES[s.t])+(bt?` · needs ${esc(short(bt))}`:'');
-  const inner=`${ic(s.t)}<span class="lb">${lb}</span>${tm}`;
+  const inner=`${ic(s.ico||s.t)}<span class="lb">${lb}</span>${tm}`;
   if(s.t==='key'||bt)
     return `<li><button class="chip s-${s.t}" data-trace="${s.t}" data-id="${esc(t.id)}" aria-label="${NAMES[s.t]}: ${lb}. Show links">${inner}</button></li>`;
   return `<li><span class="chip s-${s.t}">${inner}</span></li>`;
 }
-function allSt(t){const n=unlocks(t.id).length;return n?[...t.st,{t:'key',label:`Unlocks ${n} task${n>1?'s':''}`}]:t.st}
+function allSt(t){
+  const n=unlocks(t.id).length,out=[...t.st];
+  if(t.qs.length){const o=t.qs.filter(q=>!q.a).length;out.push(o?{t:'lock',ico:'q',label:`${o} open question${o>1?'s':''}`}:{t:'done',ico:'q',label:'Questions answered'})}
+  if(n)out.push({t:'key',label:`Unlocks ${n} task${n>1?'s':''}`});
+  return out;
+}
 function stars(n){if(!n)return '';let h='';for(let i=1;i<=5;i++)h+=`<svg class="${i<=n?'on':''}"><use href="#i-star"/></svg>`;return `<div class="stars" role="img" aria-label="Priority ${n} of 5">${h}</div>`}
 const tone=t=>unlocks(t.id).length&&t.cat==='sot'?'key':primary(t);
 const head=t=>`<h3>${esc(t.title)}${t.sub?`<small>${esc(t.sub)}</small>`:''}</h3>`;
@@ -383,7 +404,11 @@ function show(){
 }
 function openDrawer(id,keepScroll){
   const t=byId[id];if(!t)return closeDrawer();
-  const d=$('#drawer');openId=id;editing=null;
+  const d=$('#drawer');
+  if(!keepScroll||openId!==id){qEdit=null;qDel=null}
+  const keep=keepScroll&&!fresh?Object.fromEntries([...d.querySelectorAll('input[id],textarea[id]')].map(x=>[x.id,x.value])):{};
+  const foc=keepScroll&&d.contains(document.activeElement)?document.activeElement.id:'';
+  fresh=false;openId=id;editing=null;
   const rel=(list,type)=>list.map(x=>`<li><button class="rel" data-go="${esc(x.id)}"><span class="dot s-${type}">${ic(type)}</span>${esc(x.title)}</button></li>`).join('');
   const bl=blockers(t).map(i=>byId[i]),un=unlocks(t.id);
   d.innerHTML=`<button class="x" aria-label="Close">✕</button>
@@ -392,22 +417,66 @@ function openDrawer(id,keepScroll){
    ${t.sub?`<div class="muted">${esc(t.sub)}</div>`:''}
    ${t.flag?`<div class="flag">${esc(t.flag)}</div>`:''}
    ${t.info?`<div class="note">${esc(t.info)}</div>`:''}
-   <div class="blk"><h4>Status</h4><ul class="sts">${allSt(t).map(s=>{const bt=s.t==='lock'?byId[s.by]:null;return `<li><span class="chip s-${s.t}">${ic(s.t)}<span class="lb">${esc(s.label||NAMES[s.t])}${bt?` · blocked by ${esc(bt.title)}`:''}</span>${s.time?`<span class="tm">${esc(s.t==='lock'?s.time+' once unlocked':s.time)}</span>`:''}</span></li>`}).join('')}</ul></div>
+   <div class="blk"><h4>Status</h4><ul class="sts">${allSt(t).map(s=>{const bt=s.t==='lock'?byId[s.by]:null;return `<li><span class="chip s-${s.t}">${ic(s.ico||s.t)}<span class="lb">${esc(s.label||NAMES[s.t])}${bt?` · blocked by ${esc(bt.title)}`:''}</span>${s.time?`<span class="tm">${esc(s.t==='lock'?s.time+' once unlocked':s.time)}</span>`:''}</span></li>`}).join('')}</ul></div>
+   ${qBlock(t)}
    <div class="blk"><h4>Done when</h4>${t.dod.length?`<ul class="dod">${t.dod.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`:'<div class="muted">Details to be added.</div>'}</div>
    <div class="blk"><h4>Owner</h4><div class="owner"><span class="av">${t.owner?esc(t.owner[0]):'?'}</span><div>${t.owner?`<b>${esc(t.owner)}</b>`:`<b>Not assigned yet</b>`}</div></div></div>
    ${bl.length?`<div class="blk"><h4>Blocked by</h4><ul>${rel(bl,'key')}</ul></div>`:''}
    ${un.length?`<div class="blk"><h4>Unlocks</h4><ul>${rel(un,'lock')}</ul></div>`:''}
    ${canEdit()?`<div class="actions"><button class="btn primary" data-act="edit">Edit task</button></div>`:''}`;
   show();
+  for(const k in keep){const x=document.getElementById(k);if(x&&keep[k])x.value=keep[k]}
+  if(foc){const x=document.getElementById(foc);if(x)x.focus()}
   if(!keepScroll){d.scrollTop=0;d.querySelector('.x').focus()}
 }
 function closeDrawer(){const d=$('#drawer');openId=null;editing=null;if(!d.classList.contains('on'))return;d.classList.remove('on');d.setAttribute('aria-hidden','true');$('#scrim').classList.remove('on');if(lastFocus&&lastFocus.focus&&document.contains(lastFocus))lastFocus.focus()}
+
+/* ---------- block reasons (questions and answers), editable straight from the open card ---------- */
+function qBlock(t){
+  const ed=canEdit();
+  if(!t.qs.length&&!(ed&&t.st.some(s=>s.t==='lock')))return '';
+  const item=q=>{
+    const del=!ed?'':qDel===q.id?`<button class="lnk danger" data-act="q-del-yes" data-q="${q.id}">Delete</button><button class="lnk" data-act="q-del-no">Keep</button>`:`<button class="lnk" data-act="q-del" data-q="${q.id}" aria-label="Delete question">✕</button>`;
+    const body=ed&&(!q.a||qEdit===q.id)
+      ?`<textarea id="q-a-${q.id}" class="q-in" maxlength="1000" aria-label="Answer" placeholder="Answer that resolves this…">${esc(q.a)}</textarea><div class="actions"><button class="btn" data-act="q-ans" data-q="${q.id}">Save answer</button></div>`
+      :q.a?`<div class="q-a">${esc(q.a)}</div>${ed?`<button class="lnk ch" data-act="q-edit" data-q="${q.id}">Change answer</button>`:''}`:'<div class="muted">No answer yet.</div>';
+    return `<li class="q"><div class="q-h"><span class="dot ${q.a?'s-done':'s-lock'}">${ic(q.a?'done':'q')}</span><b>${esc(q.q)}</b>${del}</div>${body}</li>`};
+  return `<div class="blk"><h4>Why is it blocked?</h4>${t.qs.length?`<ul>${t.qs.map(item).join('')}</ul>`:'<div class="muted">No reasons added yet.</div>'}
+   ${ed?`<div class="q-new"><input id="q-new" maxlength="300" aria-label="New question" placeholder="Add a reason as a question…"><button class="btn" data-act="q-add">Add</button></div>`:''}
+   ${ed&&needPw?'<input id="q-pw" type="password" aria-label="Team password" placeholder="Team password" autocomplete="current-password">':''}
+   <div class="err" id="q-err" hidden></div></div>`;
+}
+async function saveQs(id,mut){
+  const t=byId[id];if(!t)return;
+  const copy=JSON.parse(JSON.stringify(t));mut(copy.qs);
+  readPw();const {id:_id,...body}=copy;
+  try{
+    await api('PUT',{id,task:body});
+    if(pw)try{localStorage.setItem('h7pw',pw)}catch(_){}
+    qEdit=null;qDel=null;fresh=true;await load();
+  }catch(err){
+    const m=err.code===401?(pw?'Wrong password. Try again.':'Enter the team password to save.'):why(err);
+    if(err.code===401){needPw=true;pw=''}
+    openDrawer(id,true);const x=$('#q-err');if(x){x.textContent=m;x.hidden=false}
+  }
+}
+function qAct(act,k){
+  const val=i=>{const x=document.getElementById(i);return x?x.value.trim():''},id=openId;
+  if(act==='q-add'){const v=val('q-new');if(v)saveQs(id,qs=>qs.push({id:Math.random().toString(36).slice(2,10),q:v,a:''}));return}
+  if(act==='q-ans'){const v=val('q-a-'+k);if(v||qEdit===k)saveQs(id,qs=>{const x=qs.find(q=>q.id===k);if(x)x.a=v});return}
+  if(act==='q-del-yes')return saveQs(id,qs=>{const i=qs.findIndex(q=>q.id===k);if(i>=0)qs.splice(i,1)});
+  if(act==='q-edit'){qEdit=k;qDel=null}
+  if(act==='q-del')qDel=k;
+  if(act==='q-del-no')qDel=null;
+  openDrawer(id,true);
+  if(act==='q-edit'){const x=document.getElementById('q-a-'+k);if(x)x.focus()}
+}
 
 /* ---------- editing ---------- */
 function openEdit(id,cat){
   if(!canEdit())return;
   const t=id?byId[id]:null;if(id&&!t)return;
-  editing=t?JSON.parse(JSON.stringify(t)):{id:null,cat:cat||'pages',title:'',sub:'',icon:'file',stars:0,owner:null,flag:'',info:'',st:[{t:'open',label:'To do',time:'',by:''}],dod:[],order:0};
+  editing=t?JSON.parse(JSON.stringify(t)):{id:null,cat:cat||'pages',title:'',sub:'',icon:'file',stars:0,owner:null,flag:'',info:'',st:[{t:'open',label:'To do',time:'',by:''}],dod:[],order:0,qs:[]};
   openId=id||null;renderEdit();show();
   const d=$('#drawer');d.scrollTop=0;$('#f-title').focus();
 }
@@ -453,7 +522,7 @@ function collect(){
 }
 function fail(m){const x=$('#f-err');if(x){x.textContent=m;x.hidden=false}}
 const why=e=>e&&(e.code===400||e.code===413)?'Not saved. The task is too long or invalid.':'Not saved. Check your connection and try again.';
-function readPw(){const p=document.getElementById('f-pw');if(p&&p.value)pw=p.value}
+function readPw(){const p=document.getElementById('f-pw')||document.getElementById('q-pw');if(p&&p.value)pw=p.value}
 function denied(del){needPw=true;renderEdit(del);fail(pw?'Wrong password. Try again.':'Enter the team password to save changes.');pw='';const p=document.getElementById('f-pw');if(p)p.focus()}
 async function save(){
   collect();const e=editing;
@@ -487,6 +556,7 @@ drawer.addEventListener('click',e=>{
   const i=e.target.closest('[data-icon]');if(i){collect();editing.icon=i.dataset.icon;return renderEdit()}
   const a=e.target.closest('[data-act]');if(!a)return;
   const act=a.dataset.act;
+  if(act.startsWith('q-'))return qAct(act,a.dataset.q);
   if(act==='edit')return openEdit(openId);
   if(act==='cancel')return editing.id?openDrawer(editing.id):closeDrawer();
   if(act==='add-st'){collect();editing.st.push({t:'open',label:'',time:'',by:''});return renderEdit()}
@@ -496,6 +566,7 @@ drawer.addEventListener('click',e=>{
   if(act==='del-yes')return remove();
 });
 drawer.addEventListener('change',e=>{if(e.target.matches('.st-t')){collect();renderEdit()}});
+drawer.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='q-new'){e.preventDefault();qAct('q-add')}});
 drawer.addEventListener('submit',e=>{e.preventDefault();save()});
 $('#scrim').addEventListener('click',closeDrawer);
 addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();pinned=null;clearTrace()}});
