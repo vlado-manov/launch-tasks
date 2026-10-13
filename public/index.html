@@ -19,6 +19,7 @@
   --key:#D99A00;  --key-bg:#FFF3D1;
   --wait:#8A5BD6; --wait-bg:#F0E8FC;
   --open:#6B7C75; --open-bg:#EAF0ED;
+  --ask:#C2267A;  --ask-bg:#FCE4F0;
   --display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
   --body:"Instrument Sans","Segoe UI",system-ui,sans-serif;
   --r:16px;
@@ -58,6 +59,8 @@ svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke
 .s-key{color:var(--key);background:var(--key-bg)}
 .s-wait{color:var(--wait);background:var(--wait-bg)}
 .s-open{color:var(--open);background:var(--open-bg)}
+.s-ask{color:var(--ask);background:var(--ask-bg)}
+.chip.s-ask{background:var(--ask);color:#fff}
 .f-done{background:var(--done)}.f-prog{background:var(--prog)}.f-lock{background:var(--lock)}.f-wait{background:var(--wait)}.f-open{background:#B9C6C0}
 
 /* board */
@@ -172,7 +175,14 @@ button.chip:hover,button.chip.pin{box-shadow:inset 0 0 0 1.5px currentColor}
 .actions .sp{flex:1}
 
 /* block reasons: question + answer */
-.q{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:12px;background:var(--bg)}
+.blk.ask{background:var(--ask-bg);border:1.5px solid var(--ask);border-radius:14px;padding:14px}
+.blk.ask h4{color:var(--ask)}
+.q{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:12px;background:var(--surface)}
+.q-a{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:baseline}
+.vd{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:600}
+.q .actions.in{margin-left:30px}
+.btn.yes{color:var(--done);border-color:var(--done)}
+.btn.no{color:var(--lock);border-color:var(--lock)}
 .q-h{display:flex;gap:8px;align-items:flex-start}
 .q-h b{flex:1;min-width:0;overflow-wrap:anywhere}
 .q-a{padding-left:30px;white-space:pre-wrap;overflow-wrap:anywhere}
@@ -280,7 +290,7 @@ function norm(id,d){
   return {id,title:String(d.title||'Untitled'),sub:String(d.sub||''),cat:Object.hasOwn(CATS,d.cat)?d.cat:'pages',icon:ICONS.includes(d.icon)?d.icon:'file',
     stars:Math.max(0,Math.min(5,d.stars|0)),owner:TEAM.includes(d.owner)?d.owner:null,flag:String(d.flag||''),info:String(d.info||''),
     st:st.length?st:[{t:'open',label:'To do',time:'',by:''}],dod:(Array.isArray(d.dod)?d.dod:[]).map(String),order:+d.order||0,
-    qs:(Array.isArray(d.qs)?d.qs:[]).filter(q=>q&&typeof q==='object'&&q.q).map((q,i)=>({id:String(q.id||'').replace(/[^A-Za-z0-9]/g,'')||'q'+i,q:String(q.q),a:String(q.a||'')}))};
+    qs:(Array.isArray(d.qs)?d.qs:[]).filter(q=>q&&typeof q==='object'&&q.q).map((q,i)=>({id:String(q.id||'').replace(/[^A-Za-z0-9]/g,'')||'q'+i,q:String(q.q),a:String(q.a||''),v:q.v==='yes'||q.v==='no'?q.v:'',r:!!q.r}))};
 }
 
 function chip(t,s){
@@ -292,9 +302,15 @@ function chip(t,s){
     return `<li><button class="chip s-${s.t}" data-trace="${s.t}" data-id="${esc(t.id)}" aria-label="${NAMES[s.t]}: ${lb}. Show links">${inner}</button></li>`;
   return `<li><span class="chip s-${s.t}">${inner}</span></li>`;
 }
+const answered=q=>!!(q.a||q.v);
 function allSt(t){
   const n=unlocks(t.id).length,out=[...t.st];
-  if(t.qs.length){const o=t.qs.filter(q=>!q.a).length;out.push(o?{t:'lock',ico:'q',label:`${o} open question${o>1?'s':''}`}:{t:'done',ico:'q',label:'Questions answered'})}
+  if(t.qs.length){
+    const o=t.qs.filter(q=>!answered(q)).length,w=t.qs.filter(q=>answered(q)&&!q.r).length;
+    if(o)out.push({t:'ask',ico:'q',label:`${o} open question${o>1?'s':''}`});
+    if(w)out.push({t:'wait',label:`${w} waiting for approval`});
+    if(!o&&!w)out.push({t:'done',ico:'q',label:'Questions resolved'});
+  }
   if(n)out.push({t:'key',label:`Unlocks ${n} task${n>1?'s':''}`});
   return out;
 }
@@ -436,12 +452,19 @@ function qBlock(t){
   const ed=canEdit();
   if(!t.qs.length&&!(ed&&t.st.some(s=>s.t==='lock')))return '';
   const item=q=>{
-    const del=!ed?'':qDel===q.id?`<button class="lnk danger" data-act="q-del-yes" data-q="${q.id}">Delete</button><button class="lnk" data-act="q-del-no">Keep</button>`:`<button class="lnk" data-act="q-del" data-q="${q.id}" aria-label="Delete question">✕</button>`;
-    const body=ed&&(!q.a||qEdit===q.id)
-      ?`<textarea id="q-a-${q.id}" class="q-in" maxlength="1000" aria-label="Answer" placeholder="Answer that resolves this…">${esc(q.a)}</textarea><div class="actions"><button class="btn" data-act="q-ans" data-q="${q.id}">Save answer</button></div>`
-      :q.a?`<div class="q-a">${esc(q.a)}</div>${ed?`<button class="lnk ch" data-act="q-edit" data-q="${q.id}">Change answer</button>`:''}`:'<div class="muted">No answer yet.</div>';
-    return `<li class="q"><div class="q-h"><span class="dot ${q.a?'s-done':'s-lock'}">${ic(q.a?'done':'q')}</span><b>${esc(q.q)}</b>${del}</div>${body}</li>`};
-  return `<div class="blk"><h4>Why is it blocked?</h4>${t.qs.length?`<ul>${t.qs.map(item).join('')}</ul>`:'<div class="muted">No reasons added yet.</div>'}
+    const ans=answered(q),stt=!ans?'ask':q.r?'done':'wait',at=`data-q="${q.id}"`;
+    const del=!ed?'':qDel===q.id?`<button class="lnk danger" data-act="q-del-yes" ${at}>Delete</button><button class="lnk" data-act="q-del-no">Keep</button>`:`<button class="lnk" data-act="q-del" ${at} aria-label="Delete question">✕</button>`;
+    const shown=`<div class="q-a">${q.v?`<span class="vd ${q.v==='yes'?'s-done':'s-lock'}">${q.v==='yes'?'Confirmed':'Denied'}</span>`:''}${q.a?`<span>${esc(q.a)}</span>`:''}</div>`;
+    let body;
+    if(ed&&(!ans||qEdit===q.id))
+      body=`<textarea id="q-a-${q.id}" class="q-in" maxlength="1000" aria-label="Answer" placeholder="Write an answer, or just confirm or deny…">${esc(q.a)}</textarea>
+        <div class="actions"><button class="btn yes" data-act="q-yes" ${at}>Confirm</button><button class="btn no" data-act="q-no" ${at}>Deny</button><span class="sp"></span><button class="btn" data-act="q-ans" ${at}>Save answer</button></div>`;
+    else if(!ans)body='<div class="muted">No answer yet.</div>';
+    else if(!ed)body=shown+`<div class="muted">${q.r?'Resolved':'Waiting for approval'}</div>`;
+    else if(q.r)body=shown+`<div class="actions in"><span class="vd s-done">Resolved</span><button class="lnk" data-act="q-reopen" ${at}>Reopen</button></div>`;
+    else body=shown+`<div class="actions in"><span class="vd s-wait">Waiting for approval</span><span class="sp"></span><button class="btn primary" data-act="q-res" ${at}>Mark as resolved</button><button class="lnk" data-act="q-edit" ${at}>Change answer</button></div>`;
+    return `<li class="q"><div class="q-h"><span class="dot s-${stt}">${ic(stt==='ask'?'q':stt)}</span><b>${esc(q.q)}</b>${del}</div>${body}</li>`};
+  return `<div class="blk ask"><h4>Why is it blocked?</h4>${t.qs.length?`<ul>${t.qs.map(item).join('')}</ul>`:'<div class="muted">No reasons added yet.</div>'}
    ${ed?`<div class="q-new"><input id="q-new" maxlength="300" aria-label="New question" placeholder="Add a reason as a question…"><button class="btn" data-act="q-add">Add</button></div>`:''}
    ${ed&&needPw?'<input id="q-pw" type="password" aria-label="Team password" placeholder="Team password" autocomplete="current-password">':''}
    <div class="err" id="q-err" hidden></div></div>`;
@@ -462,8 +485,12 @@ async function saveQs(id,mut){
 }
 function qAct(act,k){
   const val=i=>{const x=document.getElementById(i);return x?x.value.trim():''},id=openId;
-  if(act==='q-add'){const v=val('q-new');if(v)saveQs(id,qs=>qs.push({id:Math.random().toString(36).slice(2,10),q:v,a:''}));return}
-  if(act==='q-ans'){const v=val('q-a-'+k);if(v||qEdit===k)saveQs(id,qs=>{const x=qs.find(q=>q.id===k);if(x)x.a=v});return}
+  const on=fn=>saveQs(id,qs=>{const x=qs.find(q=>q.id===k);if(x)fn(x)});
+  if(act==='q-add'){const v=val('q-new');if(v)saveQs(id,qs=>qs.push({id:Math.random().toString(36).slice(2,10),q:v,a:'',v:'',r:false}));return}
+  if(act==='q-ans'){const v=val('q-a-'+k);if(v||qEdit===k)on(x=>{x.a=v;x.v='';x.r=false});return}
+  if(act==='q-yes'||act==='q-no'){const v=val('q-a-'+k);return on(x=>{x.a=v;x.v=act==='q-yes'?'yes':'no';x.r=false})}
+  if(act==='q-res')return on(x=>{x.r=true});
+  if(act==='q-reopen')return on(x=>{x.r=false});
   if(act==='q-del-yes')return saveQs(id,qs=>{const i=qs.findIndex(q=>q.id===k);if(i>=0)qs.splice(i,1)});
   if(act==='q-edit'){qEdit=k;qDel=null}
   if(act==='q-del')qDel=k;
