@@ -1,0 +1,559 @@
+{
+ "sot": {
+  "cat": "sot",
+  "dod": [
+   "One agreed document for product facts, claims and wording",
+   "Signed off, so copy on every page can be finalised"
+  ],
+  "flag": "",
+  "icon": "target",
+  "info": "",
+  "order": 10,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Open",
+    "t": "open",
+    "time": ""
+   }
+  ],
+  "stars": 5,
+  "sub": "SOT · the one agreed reference for all copy",
+  "title": "Source of Truth"
+ },
+ "home": {
+  "cat": "pages",
+  "dod": [
+   "Desktop and responsive layouts live"
+  ],
+  "flag": "",
+  "icon": "home",
+  "info": "",
+  "order": 20,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Done",
+    "t": "done",
+    "time": ""
+   }
+  ],
+  "stars": 0,
+  "sub": "+ responsive",
+  "title": "Homepage"
+ },
+ "pdp": {
+  "cat": "pages",
+  "dod": [
+   "Desktop and responsive layouts live"
+  ],
+  "flag": "",
+  "icon": "box",
+  "info": "",
+  "order": 30,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Done",
+    "t": "done",
+    "time": ""
+   }
+  ],
+  "stars": 0,
+  "sub": "PDP + responsive",
+  "title": "Product page"
+ },
+ "science": {
+  "cat": "pages",
+  "dod": [
+   "Responsive layout finished (2h left, due today)"
+  ],
+  "flag": "",
+  "icon": "flask",
+  "info": "",
+  "order": 40,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Page",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "",
+    "label": "Responsive",
+    "t": "prog",
+    "time": "2h left"
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "Science"
+ },
+ "ingredients": {
+  "cat": "pages",
+  "dod": [
+   "Responsive layout finished (2h left)",
+   "Final copy in place once SOT is agreed"
+  ],
+  "flag": "",
+  "icon": "leaf",
+  "info": "",
+  "order": 50,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Page",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "",
+    "label": "Responsive",
+    "t": "prog",
+    "time": "2h left"
+   },
+   {
+    "by": "sot",
+    "label": "Copy",
+    "t": "lock",
+    "time": ""
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "Ingredients"
+ },
+ "fermentation": {
+  "cat": "pages",
+  "dod": [
+   "Responsive layout finished (1h left, due today)"
+  ],
+  "flag": "",
+  "icon": "jar",
+  "info": "",
+  "order": 60,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Page",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "",
+    "label": "Responsive",
+    "t": "prog",
+    "time": "1h left"
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "Fermentation"
+ },
+ "team": {
+  "cat": "pages",
+  "dod": [
+   "Design proposal agreed",
+   "Page built + responsive"
+  ],
+  "flag": "May miss pre-order",
+  "icon": "users",
+  "info": "Might not be ready for the pre-order launch if the design is not agreed on.",
+  "order": 70,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Design proposal",
+    "t": "wait",
+    "time": "needs agreement"
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "Team"
+ },
+ "faq": {
+  "cat": "pages",
+  "dod": [
+   "Final copy in place once SOT is agreed (1h)"
+  ],
+  "flag": "",
+  "icon": "help",
+  "info": "",
+  "order": 80,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Page",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "sot",
+    "label": "Copy",
+    "t": "lock",
+    "time": "1h"
+   }
+  ],
+  "stars": 0,
+  "sub": "+ responsive",
+  "title": "FAQ"
+ },
+ "contact": {
+  "cat": "pages",
+  "dod": [
+   "Final copy in place once SOT is agreed (15 min)"
+  ],
+  "flag": "",
+  "icon": "mail",
+  "info": "",
+  "order": 90,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Page",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "sot",
+    "label": "Copy",
+    "t": "lock",
+    "time": "15 min"
+   }
+  ],
+  "stars": 0,
+  "sub": "+ responsive",
+  "title": "Contact"
+ },
+ "legalpages": {
+  "cat": "pages",
+  "dod": [
+   "Final copy in place once SOT is agreed (15 min)"
+  ],
+  "flag": "",
+  "icon": "scale",
+  "info": "",
+  "order": 100,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Pages",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "sot",
+    "label": "Copy",
+    "t": "lock",
+    "time": "15 min"
+   }
+  ],
+  "stars": 0,
+  "sub": "T&C and Privacy Policy + responsive",
+  "title": "Legal pages"
+ },
+ "profile": {
+  "cat": "pages",
+  "dod": [
+   "Final copy in place once SOT is agreed (2h)"
+  ],
+  "flag": "",
+  "icon": "user",
+  "info": "",
+  "order": 110,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Page",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "sot",
+    "label": "Copy",
+    "t": "lock",
+    "time": "2h"
+   }
+  ],
+  "stars": 0,
+  "sub": "+ responsive",
+  "title": "Profile page"
+ },
+ "blog": {
+  "cat": "pages",
+  "dod": [
+   "Blog posts written and published once SOT is agreed (2 days)"
+  ],
+  "flag": "",
+  "icon": "pen",
+  "info": "",
+  "order": 120,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Page",
+    "t": "done",
+    "time": ""
+   },
+   {
+    "by": "sot",
+    "label": "Blog posts",
+    "t": "lock",
+    "time": "2d"
+   }
+  ],
+  "stars": 0,
+  "sub": "+ responsive",
+  "title": "Blog"
+ },
+ "email": {
+  "cat": "pages",
+  "dod": [
+   "Email flows written and set up once SOT is agreed (1 day)"
+  ],
+  "flag": "",
+  "icon": "send",
+  "info": "",
+  "order": 130,
+  "owner": null,
+  "st": [
+   {
+    "by": "sot",
+    "label": "Blocked",
+    "t": "lock",
+    "time": "1d"
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "Email flows"
+ },
+ "preorder": {
+  "cat": "pages",
+  "dod": [
+   "Pre-order configured on the store (4–6h of work)"
+  ],
+  "flag": "",
+  "icon": "cart",
+  "info": "",
+  "order": 140,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "To do",
+    "t": "open",
+    "time": "4–6h"
+   }
+  ],
+  "stars": 3,
+  "sub": "",
+  "title": "Pre-order setup"
+ },
+ "mollie": {
+  "cat": "payments",
+  "dod": [
+   "Mollie account approved"
+  ],
+  "flag": "",
+  "icon": "card",
+  "info": "",
+  "order": 150,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Waiting for approval",
+    "t": "wait",
+    "time": ""
+   }
+  ],
+  "stars": 5,
+  "sub": "",
+  "title": "Mollie setup"
+ },
+ "firmhouse": {
+  "cat": "payments",
+  "dod": [
+   "Mollie connected to Firmhouse and syncing (2 days)"
+  ],
+  "flag": "",
+  "icon": "sync",
+  "info": "",
+  "order": 160,
+  "owner": null,
+  "st": [
+   {
+    "by": "mollie",
+    "label": "Blocked",
+    "t": "lock",
+    "time": "2d"
+   }
+  ],
+  "stars": 3,
+  "sub": "",
+  "title": "Mollie → Firmhouse sync"
+ },
+ "shopifyver": {
+  "cat": "payments",
+  "dod": [
+   "Business verified by Shopify (3 days)"
+  ],
+  "flag": "",
+  "icon": "shield",
+  "info": "",
+  "order": 170,
+  "owner": null,
+  "st": [
+   {
+    "by": "mollie",
+    "label": "Blocked",
+    "t": "lock",
+    "time": "3d"
+   }
+  ],
+  "stars": 3,
+  "sub": "",
+  "title": "Shopify business verification"
+ },
+ "ordertest": {
+  "cat": "payments",
+  "dod": [
+   "Test orders pass end to end (2 days)"
+  ],
+  "flag": "",
+  "icon": "clip",
+  "info": "",
+  "order": 180,
+  "owner": null,
+  "st": [
+   {
+    "by": "shopifyver",
+    "label": "Blocked",
+    "t": "lock",
+    "time": "2d"
+   }
+  ],
+  "stars": 3,
+  "sub": "",
+  "title": "Order testing"
+ },
+ "skus": {
+  "cat": "payments",
+  "dod": [
+   "SKUs created in ShopWeDo (due today)"
+  ],
+  "flag": "",
+  "icon": "tag",
+  "info": "",
+  "order": 190,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "In progress",
+    "t": "prog",
+    "time": "15 min left"
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "ShopWeDo SKUs"
+ },
+ "swdsync": {
+  "cat": "payments",
+  "dod": [
+   "ShopWeDo and Shopify syncing (1 day)"
+  ],
+  "flag": "",
+  "icon": "truck",
+  "info": "",
+  "order": 200,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "To do",
+    "t": "open",
+    "time": "1d"
+   }
+  ],
+  "stars": 3,
+  "sub": "",
+  "title": "ShopWeDo ↔ Shopify sync"
+ },
+ "nba": {
+  "cat": "legal",
+  "dod": [],
+  "flag": "",
+  "icon": "file",
+  "info": "",
+  "order": 210,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Details to come",
+    "t": "open",
+    "time": ""
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "Website › NBA p.18"
+ },
+ "invoice": {
+  "cat": "legal",
+  "dod": [],
+  "flag": "",
+  "icon": "receipt",
+  "info": "",
+  "order": 220,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Details to come",
+    "t": "open",
+    "time": ""
+   }
+  ],
+  "stars": 0,
+  "sub": "",
+  "title": "Invoice from h7.be"
+ },
+ "stock": {
+  "cat": "legal",
+  "dod": [],
+  "flag": "",
+  "icon": "boxes",
+  "info": "",
+  "order": 230,
+  "owner": null,
+  "st": [
+   {
+    "by": "",
+    "label": "Details to come",
+    "t": "open",
+    "time": ""
+   }
+  ],
+  "stars": 0,
+  "sub": "Accounting",
+  "title": "Acquire stock"
+ }
+}
